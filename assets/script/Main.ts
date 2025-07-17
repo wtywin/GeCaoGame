@@ -7,6 +7,7 @@ export class Main extends Component {
     @property(Node) ndButtonTalent: Node;
     @property(Node) ndPanelTalent: Node;
     @property(Node) ndButtonStartGame: Node;
+    @property(Node) ndButtonSetting: Node;
 
     protected onEnable(): void {
         this.ndButtonTalent.getComponent(NormalButton).onClick(() => {
