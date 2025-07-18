@@ -16,7 +16,8 @@ export class Constant {
         FIREBALL: 'Fireball',
         FIRE_EXPLODE: 'FireExplode',
         THUNDER: 'Thunder',
-        BULLET: 'Bullet'
+        BULLET: 'Bullet',
+        SKILLCARD: 'SkillCard'
     }
     static readonly WeaponTag = {
         DARGGER: 0,

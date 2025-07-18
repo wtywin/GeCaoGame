@@ -25,6 +25,12 @@ export class Monster extends Component {
 
     private _buffHolder = new BuffHolder();
 
+    static readonly Event = {
+        DEAD: 0,
+    }
+    private _cb: Function;
+    private _target: any;
+
 
     protected onEnable(): void {
         let collider = this.node.getComponent(Collider2D);
@@ -53,8 +59,14 @@ export class Monster extends Component {
         Util.showText(
             `${val}`, color, this.node.worldPosition, BattleContext.ndTextParent);
         if (this.hp <= 0) {
+            this._cb && this._cb.apply(this._target, [Monster.Event.DEAD]);
             this.node.destroy();
         }
+    }
+
+    onMonsterEvent(cb: Function, target?: any) {
+        this._cb = cb;
+        this._target = target;
     }
 
     private _hitBack() {

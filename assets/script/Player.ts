@@ -1,4 +1,4 @@
-import { _decorator, Animation, bits, Camera, Collider2D, Color, Component, Contact2DType, dragonBones, instantiate, Label, Node, toDegree, toRadian, Tween, tween, Vec2, Vec3 } from 'cc';
+import { _decorator, Animation, bits, Camera, Collider2D, Color, Component, Contact2DType, dragonBones, instantiate, Label, Node, randomRangeInt, toDegree, toRadian, Tween, tween, Vec2, Vec3 } from 'cc';
 import { Constant } from './Constant';
 import { Util } from './Util';
 import { BattleContext } from './BattleContext';
@@ -24,6 +24,8 @@ export class Player extends Component {
 
     private _isMoving: boolean = false;
     private _shootPos: Vec3 = new Vec3();
+    private _onEvent: Function;
+    private _target: any;
 
     public get isMoving(): boolean {
         return this._isMoving;
@@ -47,6 +49,11 @@ export class Player extends Component {
 
     }
 
+    playRoll() {
+        const display = this.ndAni.getComponent(dragonBones.ArmatureDisplay);
+        display.armatureName = 'Walk';
+        display.playAnimation('Walk', 1);
+    }
     setWeaponAngle(angle: number) {
         this.ndweapon0.angle = angle;
     }
@@ -67,9 +74,21 @@ export class Player extends Component {
     autoDirection: boolean = true;
     // Playercollider: Collider2D = null;
 
-    hp: number = 100;
+    maxHp: number = 100;
+    maxExp: number = 100;
+
+    level: number = 1;
+    hp: number = 0;
     ap: number = 0;
     dp: number = 0;
+    exp: number = 0;
+
+    static readonly Event = {
+        HURT: 0,
+        DEAD: 1,
+        ADD_EXP: 2,
+        LEVEL_UP: 3
+    }
 
     protected onEnable(): void {
         let collider = this.node.getComponent(Collider2D);
@@ -78,6 +97,10 @@ export class Player extends Component {
             collider.on(Contact2DType.END_CONTACT, this.onEndContact, this);
         }
 
+        this.level = 1;
+        this.hp = this.maxHp = 100;
+        this.maxExp = this._getNextLevelExp(this.level);
+        this.exp = 0;
     }
     protected onDisable(): void {
         let collider = this.node.getComponent(Collider2D);
@@ -88,12 +111,43 @@ export class Player extends Component {
         this.unscheduleAllCallbacks();
     }
 
+    hurt(damage: number) {
+        this.hp -= damage;
+        Util.showText(`${damage}`, Color.RED.toHEX(), this.node.worldPosition, BattleContext.ndTextParent);
+        if (this.hp <= 0) {
+            this.hp = 0;
+            //TODO notify die
+            this._onEvent && this._onEvent.apply(this._target, [Player.Event.DEAD, 0]);
+        } else {
+            //TODO notify hurt
+            this._onEvent && this._onEvent.apply(this._target, [Player.Event.HURT, damage]);
+        }
+    }
+
+    private _getNextLevelExp(level: number) {
+        return (level + 1) * 50;
+    }
+
+    addExp(exp: number) {
+        this.exp += exp;
+        this._onEvent && this._onEvent.apply(this._target, [Player.Event.ADD_EXP, exp]);
+
+        if (this.exp >= this.maxExp) {
+            this.exp -= this.maxExp;
+            this.level++;
+            this.maxExp = this._getNextLevelExp(this.level);
+            this._onEvent && this._onEvent.apply(this._target, [Player.Event.LEVEL_UP, -1]);
+        }
+    }
+
+    onPlayerEvent(onEvent: Function, target?: any) {
+        this._onEvent = onEvent;
+        this._target = target;
+    }
+
     onBeginContact(self: Collider2D, other: Collider2D) {
         if (other.group === Constant.ColliderGroup.MONSTER) {
-            Util.showText(
-                '12', Color.RED.toString(),
-                this.node.worldPosition,
-                BattleContext.ndTextParent);
+            this.hurt(randomRangeInt(5, 10));
         }
     }
 
@@ -262,6 +316,17 @@ export class Player extends Component {
 
 
         return ndFireball;
+    }
+
+    castRoll() {
+        const distance = 500;
+
+        const endPos = Util.getPosition(this.node.position, this.moveDirection, distance);
+        tween(this.node)
+            .to(0.4, { position: endPos }, { easing: 'expoOut' })
+            .start();
+
+        this.playRoll();
     }
 }
 

@@ -9,6 +9,7 @@ import { ResUtil } from './ResUtil';
 import { Globats } from './Globats';
 import { SkillButton } from './SkillButton';
 import { NormalButton } from './NormalButton';
+import { ProgressBar } from './ProgressBar';
 const { ccclass, property } = _decorator;
 
 @ccclass('Battle')
@@ -20,8 +21,15 @@ export class Battle extends Component {
     @property(Node) ndGround: Node;
 
     @property(Node) ndBtnAttack: Node;
+    @property(Node) ndBtnRoll: Node;
 
     @property(Node) ndButtonEndGame: Node;
+
+    @property(Node) ndLifeBar: Node;
+    @property(Node) ndExpBar: Node;
+    @property(Node) ndSkillSelectingView: Node;
+
+
 
 
 
@@ -117,17 +125,48 @@ export class Battle extends Component {
                     break;
             }
         });
+
+        this.ndBtnRoll.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+            switch (event) {
+                case SkillButton.Event.END:
+                    BattleContext.player.castRoll();
+                    break;
+                default:
+                    break;
+            }
+        })
         this.ndButtonEndGame.getComponent(NormalButton).onClick(() => {
             director.loadScene('Main');
         })
 
-
-        // this.ndPlayer.getComponent(Player).isMoving = true;
+        const lifeBar = this.ndLifeBar.getComponent(ProgressBar);
+        lifeBar.setProgress(1);
+        const expBar = this.ndExpBar.getComponent(ProgressBar);
+        expBar.setProgress(0);
+        BattleContext.player.onPlayerEvent((event: number, value: number) => {
+            switch (event) {
+                case Player.Event.HURT:
+                    lifeBar.setProgress(BattleContext.player.hp / BattleContext.player.maxHp);
+                    break;
+                case Player.Event.DEAD:
+                    break;
+                case Player.Event.ADD_EXP:
+                    expBar.setProgress(BattleContext.player.exp / BattleContext.player.maxExp);
+                    break;
+                case Player.Event.LEVEL_UP:
+                    this.ndSkillSelectingView.active = true;
+                    break;
+                default:
+                    break;
+            }
+        })
+        this.ndSkillSelectingView.active = false;
+        this.ndPlayer.getComponent(Player).isMoving = true;
         this.ndIndicator.active = false;
     }
     start() {
         this._generateGround();
-        // this._startGame();
+        this._startGame();
 
         this.schedule(this._onGameSpawned, 2);
     }
@@ -148,7 +187,7 @@ export class Battle extends Component {
 
             const monster = node.getComponent(Monster);
             monster.speed = 2;
-            monster.hp = 200;
+            monster.hp = 50;
         };
         if (BattleContext.ndMosterParent.children.length < 50) {
             for (let i = 0; i < 5; i++) {
@@ -174,9 +213,18 @@ export class Battle extends Component {
 
             const node = Globats.getNode(Constant.PrefabUrl.PINK_MONSTER, BattleContext.ndMosterParent);
             node.setPosition(randomRangeInt(-1000, 1000), randomRangeInt(-1000, 1000));
-            node.getComponent(Monster).speed = 1.3 + i * 0.1;
-            node.getComponent(Monster).hp = 100000;
-
+            const monster = node.getComponent(Monster);
+            monster.speed = 1.3 + i * 0.1;
+            monster.getComponent(Monster).hp = 50;
+            monster.onMonsterEvent((event: number) => {
+                switch (event) {
+                    case Monster.Event.DEAD:
+                        BattleContext.player.addExp(10);
+                        break;
+                    default:
+                        break;
+                }
+            })
         }
 
         // BattleContext.ndPlayer.getComponent(Player).startEndlessDagger();
