@@ -1,8 +1,9 @@
 
 export enum SkillID {
     NONE = 0,
-    FIRE_BALL = 1,
-    LIGNTNING = 2,
+    FIRE_BALL = 6,
+    LIGNTNING = 37,
+    ROLL = 32
 }
 
 export abstract class Skill {
@@ -33,7 +34,7 @@ export abstract class Skill {
 
 export class SkillFireball extends Skill {
     public constructor() {
-        super(SkillID.FIRE_BALL, SkillID.NONE)
+        super(SkillID.FIRE_BALL, SkillID.FIRE_BALL)
     }
 
     public getName(): string {
@@ -57,5 +58,32 @@ export class SkillLightning extends Skill {
         return '发射闪电击中敌人';
     }
 
+
+
 }
 
+export class SkillInvinvible extends Skill {
+
+    public constructor() {
+        super(SkillID.LIGNTNING, SkillID.NONE);
+    }
+    public getName(): string {
+        return '无敌';
+    }
+    public getDescription(): string {
+        return '无敌状态';
+    }
+}
+
+export class SkillRoll extends Skill {
+
+    public constructor() {
+        super(SkillID.ROLL, SkillID.NONE);
+    }
+    public getName(): string {
+        return '翻滚';
+    }
+    public getDescription(): string {
+        return '翻滚主动技能';
+    }
+}

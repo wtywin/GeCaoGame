@@ -1,4 +1,4 @@
-import { _decorator, bits, Camera, Collider2D, Color, Component, Contact2DType, Node, toDegree, toRadian, tween, Tween, Vec2, Vec3 } from 'cc';
+import { _decorator, bits, Camera, Collider2D, Color, Component, Contact2DType, easing, Node, randomRangeInt, toDegree, toRadian, tween, Tween, Vec2, Vec3 } from 'cc';
 import { BattleContext } from './BattleContext';
 import { Constant } from './Constant';
 import { Util } from './Util';
@@ -10,6 +10,7 @@ import { Thunder } from './Thunder';
 import { Bullet } from './Bullet';
 import { PlayerCamera } from './PlayerCamera';
 import { BuffHolder } from './Buff';
+import { EBullet } from './EBullet';
 const { ccclass, property } = _decorator;
 
 @ccclass('Monster')
@@ -100,7 +101,7 @@ export class Monster extends Component {
 
                     ndExplode.worldPosition = self.node.worldPosition;
                     ndExplode.getComponent(FireExplode).playAniamtion();
-                    Globats.putNode(other.node);
+                    // Globats.putNode(other.node);
                     break;
                 case Constant.WeaponTag.FIREEXPLODE:
 
@@ -121,8 +122,15 @@ export class Monster extends Component {
                 default:
                     break;
             }
+        } else if (other.group === Constant.ColliderGroup.PLAYER) {
+            const pos = Util.getPosition(other.node.position, this.moveDirection, 30);
+            tween(other.node)
+                .to(0.3, { position: pos }, { easing: 'expoOut' })
+                .start();
         }
     }
+
+
     onEndContact(self: Collider2D, other: Collider2D) {
 
     }
@@ -157,7 +165,46 @@ export class Monster extends Component {
         }
     }
 
+    startAction() {
+        this.stopAction();
 
+        const pos = new Vec3();
+        const action = tween(this.node)
+            .delay(randomRangeInt(3, 6))
+            .call(() => {
+                Util.getPosition(this.node.position, this.moveDirection, 100, pos);
+            })
+            .to(1.5, { position: pos }, { easing: 'backIn' })
+            .delay(randomRangeInt(1, 3))
+            .call(() => {
+                //怪物射击
+                // for (let i = 0; i < 5; i++) {
+                //     this.scheduleOnce(() => {
+                //         this.shootBullet();
+                //     }, i * 1)
+                // }
+            })
+
+        tween(this.node)
+            .repeatForever(action)
+            .start();
+
+    }
+    stopAction() {
+        Tween.stopAllByTarget(this.node);
+    }
+
+    shootBullet() {
+        const ndBullet = Globats.getNode(Constant.PrefabUrl.EBULLET, BattleContext.ndWeapon);
+        ndBullet.worldPosition = this.node.worldPosition;
+
+        const bullet = ndBullet.getComponent(EBullet);
+        bullet.isMoving = true;
+        bullet.moveDirection = Util.getRadian(this.node.worldPosition, BattleContext.ndPlayer.worldPosition);
+        bullet.speed = 10;
+        bullet.attack = 5;
+
+    }
 }
 
 

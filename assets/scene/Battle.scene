@@ -23,7 +23,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 131
+      "__id__": 140
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -54,7 +54,7 @@
     },
     "autoReleaseAssets": true,
     "_globals": {
-      "__id__": 132
+      "__id__": 141
     },
     "_id": "5c74f013-bffc-4a05-bd64-b29fee4de79d"
   },
@@ -102,21 +102,24 @@
       },
       {
         "__id__": 118
+      },
+      {
+        "__id__": 127
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 127
+        "__id__": 136
       },
       {
-        "__id__": 128
+        "__id__": 137
       },
       {
-        "__id__": 129
+        "__id__": 138
       },
       {
-        "__id__": 130
+        "__id__": 139
       }
     ],
     "_prefab": null,
@@ -681,7 +684,7 @@
   },
   {
     "__type__": "cc.PrefabInstance",
-    "fileId": "56/HndwGJJbJPj0Vyz5GTr",
+    "fileId": "d7X3+rGgZJeZPf7gS6WowJ",
     "prefabRootNode": null,
     "mountedChildren": [],
     "mountedComponents": [],
@@ -709,7 +712,7 @@
     "propertyPath": [
       "_name"
     ],
-    "value": "SkillButton"
+    "value": "BtnSk0"
   },
   {
     "__type__": "cc.TargetInfo",
@@ -727,8 +730,8 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 523.2729999999999,
-      "y": 29.26800000000003,
+      "x": 596.538,
+      "y": -280.98,
       "z": 0
     }
   },
@@ -792,7 +795,7 @@
   },
   {
     "__type__": "cc.PrefabInstance",
-    "fileId": "d7X3+rGgZJeZPf7gS6WowJ",
+    "fileId": "56/HndwGJJbJPj0Vyz5GTr",
     "prefabRootNode": null,
     "mountedChildren": [],
     "mountedComponents": [],
@@ -820,7 +823,7 @@
     "propertyPath": [
       "_name"
     ],
-    "value": "BtnAttack"
+    "value": "BtnSk1"
   },
   {
     "__type__": "cc.TargetInfo",
@@ -838,8 +841,8 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 151.79899999999998,
-      "y": -237.93099999999998,
+      "x": 523.2729999999999,
+      "y": 29.26800000000003,
       "z": 0
     }
   },
@@ -931,7 +934,7 @@
     "propertyPath": [
       "_name"
     ],
-    "value": "BtnRoll"
+    "value": "BtnSk2"
   },
   {
     "__type__": "cc.TargetInfo",
@@ -949,8 +952,8 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 156.87699999999995,
-      "y": 271.50800000000004,
+      "x": 107.46199999999999,
+      "y": -274.884,
       "z": 0
     }
   },
@@ -1031,8 +1034,7 @@
     "instance": {
       "__id__": 44
     },
-    "targetOverrides": null,
-    "nestedPrefabInstanceRoots": null
+    "targetOverrides": null
   },
   {
     "__type__": "cc.PrefabInstance",
@@ -2200,6 +2202,134 @@
     "value": false
   },
   {
+    "__type__": "cc.Node",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 2
+    },
+    "_prefab": {
+      "__id__": 128
+    },
+    "__editorExtras__": {}
+  },
+  {
+    "__type__": "cc.PrefabInfo",
+    "root": {
+      "__id__": 127
+    },
+    "asset": {
+      "__uuid__": "b7608659-1556-484d-9898-99c72ecffc67",
+      "__expectedType__": "cc.Prefab"
+    },
+    "fileId": "c46/YsCPVOJYA4mWEpNYRx",
+    "instance": {
+      "__id__": 129
+    },
+    "targetOverrides": null
+  },
+  {
+    "__type__": "cc.PrefabInstance",
+    "fileId": "b3SJK9JlpAe6OHMjFmMvjD",
+    "prefabRootNode": null,
+    "mountedChildren": [],
+    "mountedComponents": [],
+    "propertyOverrides": [
+      {
+        "__id__": 130
+      },
+      {
+        "__id__": 132
+      },
+      {
+        "__id__": 133
+      },
+      {
+        "__id__": 134
+      },
+      {
+        "__id__": 135
+      }
+    ],
+    "removedComponents": []
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 131
+    },
+    "propertyPath": [
+      "_name"
+    ],
+    "value": "SkillBar"
+  },
+  {
+    "__type__": "cc.TargetInfo",
+    "localID": [
+      "c46/YsCPVOJYA4mWEpNYRx"
+    ]
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 131
+    },
+    "propertyPath": [
+      "_lpos"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": -11.809999999999945,
+      "y": 266.25,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 131
+    },
+    "propertyPath": [
+      "_lrot"
+    ],
+    "value": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    }
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 131
+    },
+    "propertyPath": [
+      "_euler"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+  {
+    "__type__": "CCPropertyOverrideInfo",
+    "targetInfo": {
+      "__id__": 131
+    },
+    "propertyPath": [
+      "_lscale"
+    ],
+    "value": {
+      "__type__": "cc.Vec3",
+      "x": 0.5,
+      "y": 0.5,
+      "z": 1
+    }
+  },
+  {
     "__type__": "cc.UITransform",
     "_name": "",
     "_objFlags": 0,
@@ -2283,23 +2413,14 @@
     "ndJoystick": {
       "__id__": 54
     },
-    "ndBtnSkill": {
-      "__id__": 17
-    },
     "ndIndicator": {
       "__id__": 70
     },
-    "ndGround": {
-      "__id__": 14
-    },
-    "ndBtnAttack": {
-      "__id__": 25
-    },
-    "ndBtnRoll": {
-      "__id__": 33
-    },
     "ndButtonEndGame": {
       "__id__": 81
+    },
+    "ndGround": {
+      "__id__": 14
     },
     "ndLifeBar": {
       "__id__": 100
@@ -2349,34 +2470,37 @@
       },
       {
         "__id__": 118
+      },
+      {
+        "__id__": 127
       }
     ]
   },
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 133
+      "__id__": 142
     },
     "shadows": {
-      "__id__": 134
+      "__id__": 143
     },
     "_skybox": {
-      "__id__": 135
+      "__id__": 144
     },
     "fog": {
-      "__id__": 136
+      "__id__": 145
     },
     "octree": {
-      "__id__": 137
+      "__id__": 146
     },
     "skin": {
-      "__id__": 138
+      "__id__": 147
     },
     "lightProbeInfo": {
-      "__id__": 139
+      "__id__": 148
     },
     "postSettings": {
-      "__id__": 140
+      "__id__": 149
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

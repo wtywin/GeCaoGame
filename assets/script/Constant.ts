@@ -1,4 +1,8 @@
 export class Constant {
+
+    static readonly Event = {
+        GAME_OVER: 0
+    }
     static readonly ColliderGroup = {
         DEFAULT: 1 << 0,
         PLAYER: 1 << 1,
@@ -17,7 +21,9 @@ export class Constant {
         FIRE_EXPLODE: 'FireExplode',
         THUNDER: 'Thunder',
         BULLET: 'Bullet',
-        SKILLCARD: 'SkillCard'
+        SKILLCARD: 'SkillCard',
+
+        EBULLET: 'EBullet'
     }
     static readonly WeaponTag = {
         DARGGER: 0,
@@ -25,6 +31,11 @@ export class Constant {
         FIREBALL: 2,
         FIREEXPLODE: 3,
         THUNDER: 4,
-        BULLET: 5
+        BULLET: 5,
+
+
+
+
+        EBULLET: 100
     }
 }

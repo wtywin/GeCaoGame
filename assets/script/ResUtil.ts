@@ -1,4 +1,4 @@
-import { error, JsonAsset, Prefab, resources, SpriteFrame, TextAsset } from "cc";
+import { Asset, error, JsonAsset, Prefab, resources, SpriteFrame, TextAsset } from "cc";
 
 export class ResUtil {
     static loadRes(url: string, callback: Function) {
@@ -63,5 +63,18 @@ export class ResUtil {
                 }
             });
         });
+    }
+
+    static loadSpriteFrameDir(url: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            resources.loadDir(url, (err: Error, date: Asset[]) => {
+                if (err) {
+                    reject();
+                } else {
+                    resolve(date as SpriteFrame[]);
+                }
+            })
+        })
+
     }
 }

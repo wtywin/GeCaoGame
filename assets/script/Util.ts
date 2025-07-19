@@ -52,10 +52,14 @@ export class Util {
         node.setPosition(x, y);
     }
 
-    static getPosition(start: Vec3, radian: number, distance: number) {
+    static getPosition(start: Vec3, radian: number, distance: number, pos?: Vec3) {
         const x = start.x + Math.cos(radian) * distance;
         const y = start.y + Math.sin(radian) * distance;
-        return new Vec3(x, y, start.z);
+
+        if (!pos) {
+            pos = new Vec3();
+        }
+        return pos.set(x, y, start.z);
     }
 
     static getRadian(start: Vec3, end: Vec3) {

@@ -1,44 +1,44 @@
-import { _decorator, Component, director, error, instantiate, Label, Layers, log, Node, Prefab, randomRangeInt, resources, Sprite, SpriteFrame, toDegree, UITransform } from 'cc';
+import { _decorator, Component, director, Layers, Node, randomRangeInt, resources, Sprite, SpriteFrame, toDegree, UITransform } from 'cc';
 import { Joystick } from './Joystick';
 import { Player } from './Player';
 import { BattleContext } from './BattleContext';
-import { Util } from './Util';
 import { Monster } from './Monster';
 import { Constant } from './Constant';
-import { ResUtil } from './ResUtil';
 import { Globats } from './Globats';
 import { SkillButton } from './SkillButton';
 import { NormalButton } from './NormalButton';
 import { ProgressBar } from './ProgressBar';
+import { Skill } from './Skill';
+import { GlobalEvent } from './GlobalEvent';
 const { ccclass, property } = _decorator;
 
 @ccclass('Battle')
 export class Battle extends Component {
     @property(Node) ndPlayer: Node;
     @property(Node) ndJoystick: Node;
-    @property(Node) ndBtnSkill: Node;
     @property(Node) ndIndicator: Node;
-    @property(Node) ndGround: Node;
-
-    @property(Node) ndBtnAttack: Node;
-    @property(Node) ndBtnRoll: Node;
-
     @property(Node) ndButtonEndGame: Node;
-
+    @property(Node) ndGround: Node;
     @property(Node) ndLifeBar: Node;
     @property(Node) ndExpBar: Node;
     @property(Node) ndSkillSelectingView: Node;
 
 
-
-
-
-
+    private _sk0Button: SkillButton;
+    private _sk1Button: SkillButton;
+    private _sk2Button: SkillButton;
 
     protected onLoad(): void {
         BattleContext.ndCamera = this.node.getChildByName('Camera');
         BattleContext.ndPlayer = this.ndPlayer;
         BattleContext.player = this.ndPlayer.getComponent(Player);
+
+        const ndSkills = this.node.getChildByName('Skills');
+
+        this._sk0Button = ndSkills.getChildByName("BtnSk0").getComponent(SkillButton);
+        this._sk1Button = ndSkills.getChildByName("BtnSk1").getComponent(SkillButton);
+        this._sk2Button = ndSkills.getChildByName("BtnSk2").getComponent(SkillButton);
+
 
         const createSubNode = (name: string) => {
             const subNode = new Node(name);
@@ -56,6 +56,7 @@ export class Battle extends Component {
     }
 
     protected onEnable(): void {
+        this._rebindSkillBtuuons();
         this.ndJoystick.getComponent(Joystick).onJoystickEvent((event: number, radian: number | null | undefined) => {
             switch (event) {
                 case Joystick.Event.START:
@@ -78,63 +79,65 @@ export class Battle extends Component {
                     break;
             }
         });
-        this.ndBtnSkill.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+        // this.ndBtnSkill.getComponent(SkillButton).onEvent((event: number, radian: number) => {
 
-            switch (event) {
-                case SkillButton.Event.START:
-                    this.ndIndicator.active = true;
-                    break;
-                case SkillButton.Event.MOVE:
+        //     switch (event) {
+        //         case SkillButton.Event.START:
+        //             this.ndIndicator.active = true;
+        //             break;
+        //         case SkillButton.Event.MOVE:
 
-                    this.ndIndicator.angle = toDegree(radian);
-                    break;
-                case SkillButton.Event.END:
-                    this.ndIndicator.active = false;
-                    BattleContext.player.castFireball(radian);
-                    break;
-                case SkillButton.Event.CANCEL:
-                    break;
-                default:
-                    break;
-            }
+        //             this.ndIndicator.angle = toDegree(radian);
+        //             break;
+        //         case SkillButton.Event.END:
+        //             this.ndIndicator.active = false;
+        //             BattleContext.player.castFireball(radian);
+        //             break;
+        //         case SkillButton.Event.CANCEL:
+        //             break;
+        //         default:
+        //             break;
+        //     }
 
-        });
-        this.ndBtnAttack.getComponent(SkillButton).coldDownTime = 0.1;
-        this.ndBtnAttack.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+        // });
+        // this.ndBtnAttack.getComponent(SkillButton).coldDownTime = 0.1;
+        // this.ndBtnAttack.getComponent(SkillButton).onEvent((event: number, radian: number) => {
 
-            switch (event) {
-                case SkillButton.Event.START:
-                    BattleContext.player.startShootBllet();
+        //     switch (event) {
+        //         case SkillButton.Event.START:
+        //             // BattleContext.player.startShootBllet();
 
-                    break;
-                case SkillButton.Event.MOVE:
-                    BattleContext.player.autoDirection = false;
-                    BattleContext.player.setWeaponAngle(toDegree(radian));
+        //             break;
+        //         case SkillButton.Event.MOVE:
+        //             // BattleContext.player.autoDirection = false;
+        //             // BattleContext.player.setWeaponAngle(toDegree(radian));
 
 
-                    break;
-                case SkillButton.Event.END:
-                    BattleContext.player.autoDirection = false;
-                    BattleContext.player.stopShootBullet();
-                    break;
-                case SkillButton.Event.CANCEL:
-                    BattleContext.player.autoDirection = false;
-                    BattleContext.player.stopShootBullet();
-                    break;
-                default:
-                    break;
-            }
-        });
+        //             break;
+        //         case SkillButton.Event.END:
+        //             // BattleContext.player.autoDirection = false;
+        //             // BattleContext.player.stopShootBullet();
+        //             BattleContext.player.shootBullet();
+        //             break;
+        //         case SkillButton.Event.CANCEL:
+        //             // BattleContext.player.autoDirection = false;
+        //             // BattleContext.player.stopShootBullet();
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // });
 
-        this.ndBtnRoll.getComponent(SkillButton).onEvent((event: number, radian: number) => {
-            switch (event) {
-                case SkillButton.Event.END:
-                    BattleContext.player.castRoll();
-                    break;
-                default:
-                    break;
-            }
-        })
+        // this.ndBtnRoll.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+        //     switch (event) {
+        //         case SkillButton.Event.END:
+        //             // BattleContext.player.castRoll();
+        //             BattleContext.player.castUnattackable();
+        //             break;
+        //         default:
+        //             break;
+        //     }
+        // })
         this.ndButtonEndGame.getComponent(NormalButton).onClick(() => {
             director.loadScene('Main');
         })
@@ -149,6 +152,7 @@ export class Battle extends Component {
                     lifeBar.setProgress(BattleContext.player.hp / BattleContext.player.maxHp);
                     break;
                 case Player.Event.DEAD:
+                    GlobalEvent.broadcast(Constant.Event.GAME_OVER);
                     break;
                 case Player.Event.ADD_EXP:
                     expBar.setProgress(BattleContext.player.exp / BattleContext.player.maxExp);
@@ -164,11 +168,84 @@ export class Battle extends Component {
         this.ndPlayer.getComponent(Player).isMoving = true;
         this.ndIndicator.active = false;
     }
+
+
+    private _rebindSkillBtuuons() {
+        this._sk0Button.coldDownTime = 0;
+        this._sk0Button.onEvent((event: number, radian: number) => {
+            if (event === SkillButton.Event.END) {
+                BattleContext.player.shootBullet();
+            }
+        });
+
+        this._sk1Button.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+            switch (event) {
+                case SkillButton.Event.START:
+                    this.ndIndicator.active = true;
+                    break;
+                case SkillButton.Event.MOVE:
+                    this.ndIndicator.angle = toDegree(radian);
+                    break;
+                case SkillButton.Event.END:
+                    this.ndIndicator.active = false;
+                    BattleContext.player.castFireball();
+                    break;
+                case SkillButton.Event.CANCEL:
+                    this.ndIndicator.active = false;
+                    break;
+                default:
+                    break;
+
+            }
+        });
+
+        this._sk1Button.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+            switch (event) {
+                case SkillButton.Event.START:
+                    this.ndIndicator.active = true;
+                    break;
+                case SkillButton.Event.MOVE:
+                    this.ndIndicator.angle = toDegree(radian);
+                    break;
+                case SkillButton.Event.END:
+                    this.ndIndicator.active = false;
+                    BattleContext.player.castFireball();
+                    break;
+                case SkillButton.Event.CANCEL:
+                    this.ndIndicator.active = false;
+                    break;
+                default:
+                    break;
+
+            }
+        });
+
+        this._sk2Button.getComponent(SkillButton).onEvent((event: number, radian: number) => {
+            switch (event) {
+                case SkillButton.Event.START:
+
+                    break;
+                case SkillButton.Event.MOVE:
+
+                    break;
+                case SkillButton.Event.END:
+
+                    BattleContext.player.castRoll();
+                    break;
+                case SkillButton.Event.CANCEL:
+
+                    break;
+                default:
+                    break;
+
+            }
+        });
+    }
     start() {
         this._generateGround();
         this._startGame();
 
-        this.schedule(this._onGameSpawned, 2);
+        // this.schedule(this._onGameSpawned, 2);
     }
 
     update(deltaTime: number) {
@@ -209,13 +286,13 @@ export class Battle extends Component {
     }
     private _startGame() {
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 20; i++) {
 
             const node = Globats.getNode(Constant.PrefabUrl.PINK_MONSTER, BattleContext.ndMosterParent);
             node.setPosition(randomRangeInt(-1000, 1000), randomRangeInt(-1000, 1000));
             const monster = node.getComponent(Monster);
             monster.speed = 1.3 + i * 0.1;
-            monster.getComponent(Monster).hp = 50;
+            monster.getComponent(Monster).hp = 100;
             monster.onMonsterEvent((event: number) => {
                 switch (event) {
                     case Monster.Event.DEAD:
@@ -224,7 +301,8 @@ export class Battle extends Component {
                     default:
                         break;
                 }
-            })
+            });
+            monster.startAction();
         }
 
         // BattleContext.ndPlayer.getComponent(Player).startEndlessDagger();
@@ -237,7 +315,7 @@ export class Battle extends Component {
             if (err) {
                 return;
             }
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 5; i++) {
                 const frame = date[randomRangeInt(0, date.length)];
                 const node = new Node();
                 node.layer = Layers.Enum.UI_2D;

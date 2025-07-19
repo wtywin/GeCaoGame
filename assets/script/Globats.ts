@@ -1,4 +1,4 @@
-import { _decorator, Component, director, Node, Prefab } from 'cc';
+import { _decorator, Component, director, Node, Prefab, SpriteFrame, warn } from 'cc';
 import { Constant } from './Constant';
 import { ResUtil } from './ResUtil';
 import { PoolManager } from './PoolManager';
@@ -8,6 +8,7 @@ const { ccclass, property } = _decorator;
 export class Globats extends Component {
 
     static prefabs: Record<string, Prefab> = {};
+    static skillSpriteFrames: Record<string, SpriteFrame> = {};
     protected onLoad(): void {
         director.addPersistRootNode(this.node);
     }
@@ -21,6 +22,13 @@ export class Globats extends Component {
                 Globats.prefabs[url] = pr;
             });
             promises.push(p);
+        });
+
+        promises[promises.length] = ResUtil.loadSpriteFrameDir('skills/').then((frames: SpriteFrame[]) => {
+            for (let i = 0; i < frames.length; i++) {
+                const sf = frames[i];
+                this.skillSpriteFrames[sf.name] = sf;
+            }
         })
         return Promise.all(promises);
 
@@ -35,6 +43,14 @@ export class Globats extends Component {
 
     static putNode(node: Node) {
         PoolManager.instance.put(node);
+    }
+
+    static getSkillSpriteFrame(skillID: number) {
+        const frame = this.skillSpriteFrames[`${skillID}`];
+        if (!frame) {
+            warn(`${skillID} is not key of sprites`);
+        }
+        return frame;
     }
 
     start() {

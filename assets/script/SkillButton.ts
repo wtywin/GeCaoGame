@@ -1,4 +1,4 @@
-import { _decorator, Component, EventTouch, Label, Node, Sprite, tween, UIOpacity, v2, v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Component, EventTouch, Label, Node, Sprite, SpriteFrame, tween, UIOpacity, v2, v3, Vec2, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('SkillButton')
@@ -115,14 +115,29 @@ export class SkillButton extends Component {
 
     }
     onTouchEnd() {
-        // this.node.setScale(1, 1);
+        if (!this.isAvaliable) {
+            return;
+        }
+
         this._hidePanel();
 
-        this._isColding = true;
-        this._currColdTime = this._coldDownTime;
-        this.isAvaliable = false;
-        this.ndText.active = true;
-        this.ndText.getComponent(Label).string = `${this._currColdTime.toFixed(1)}`;
+
+
+
+        if (this._coldDownTime > 0) {
+            this._currColdTime = this._coldDownTime;
+            this._isColding = true;
+            this.isAvaliable = false;
+            this.ndText.active = true;
+            this.ndText.getComponent(Label).string = `${this._currColdTime.toFixed(1)}`;
+        } else {
+            this._isColding = false;
+            this.isAvaliable = true;
+            this.ndText.active = false;
+        }
+
+
+
 
         this._eventArg[0] = SkillButton.Event.END;
         this._eventArg[1] = this._radian;
@@ -130,6 +145,9 @@ export class SkillButton extends Component {
 
     }
     onTouchCancel() {
+        if (!this.isAvaliable) {
+            return;
+        }
         // this.node.setScale(1, 1);
         this._hidePanel();
 
@@ -151,6 +169,10 @@ export class SkillButton extends Component {
                 this.ndText.active = false;
             }
         }
+    }
+
+    setSpriteFrame(frame:SpriteFrame){
+        this.ndIcon.getComponent(Sprite).spriteFrame = frame;
     }
 }
 

@@ -1,25 +1,43 @@
 import { _decorator, clamp, Component, Node } from 'cc';
-import { Skill, SkillFireball } from './Skill';
+import { Skill, SkillFireball, SkillInvinvible, SkillRoll } from './Skill';
 import { Globats } from './Globats';
 import { Constant } from './Constant';
 import { SkillCard } from './SkillCard';
+import { BattleContext } from './BattleContext';
 const { ccclass, property } = _decorator;
 
 @ccclass('SkillSelectingView')
 export class SkillSelectingView extends Component {
     @property(Node) ndSkills: Node;
 
-    start() {
-        let skills: Skill[] = [];
-        skills.push(new SkillFireball());
-        skills.push(new SkillFireball());
-        skills.push(new SkillFireball());
+    protected onEnable(): void {
+        this._showCards();
+    }
 
-
-        this._createSkillCards(skills);
+    protected onDisable(): void {
 
     }
 
+    start() {
+        // let skills: Skill[] = [];
+        // skills.push(new SkillFireball());
+        // skills.push(new SkillFireball());
+        // skills.push(new SkillFireball());
+
+
+        // this._createSkillCards(skills);
+
+    }
+
+    private _showCards() {
+        let sks: Skill[] = [];
+
+        sks.push(new SkillRoll());
+        sks.push(new SkillInvinvible());
+        sks.push(new SkillFireball());
+
+        this._createSkillCards(sks);
+    }
     update(deltaTime: number) {
 
     }
@@ -31,8 +49,15 @@ export class SkillSelectingView extends Component {
 
         const len = skills.length;
         for (let i = 0; i < len; i++) {
+            const sk = skills[i];
             const ndCard = Globats.getNode(Constant.PrefabUrl.SKILLCARD, this.ndSkills);
-            ndCard.getComponent(SkillCard).setSkill(skills[i]);
+            const card = ndCard.getComponent(SkillCard);
+            card.setSkill(sk);
+            card.onClick(() => {
+                //player 学习技能
+                BattleContext.player.learnSkill(sk);
+                this.node.active = false;
+            })
         }
 
         const cardWidth = 450;

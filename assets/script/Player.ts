@@ -1,15 +1,17 @@
-import { _decorator, Animation, bits, Camera, Collider2D, Color, Component, Contact2DType, dragonBones, instantiate, Label, Node, randomRangeInt, toDegree, toRadian, Tween, tween, Vec2, Vec3 } from 'cc';
+import { _decorator, bits, Collider2D, Color, Component, Contact2DType, dragonBones, Node, randomRangeInt, toDegree, toRadian, Tween, tween, UIOpacity, Vec2, Vec3 } from 'cc';
 import { Constant } from './Constant';
 import { Util } from './Util';
 import { BattleContext } from './BattleContext';
 import { Weapon } from './Weapon';
-import { PoolManager } from './PoolManager';
 import { Surround } from './Surround';
 import { Globats } from './Globats';
 import { Thunder } from './Thunder';
 import { FireBall } from './FireBall';
 import { Bullet } from './Bullet';
 import { PlayerCamera } from './PlayerCamera';
+import { ProgressBar } from './ProgressBar';
+import { EBullet } from './EBullet';
+import { Skill } from './Skill';
 const { ccclass, property } = _decorator;
 
 @ccclass('Player')
@@ -17,12 +19,14 @@ export class Player extends Component {
     @property(Node) private ndAni: Node;
     @property(Node) ndweapon0: Node;
     @property(Node) ndShootStart: Node;
+    @property(Node) ndReloadProgress: Node;
 
     speed: number = 4;
     moveDirection: number = 0;
     // ismoving: boolean = false;
 
     private _isMoving: boolean = false;
+    private _isUnattackable: boolean = false;
     private _shootPos: Vec3 = new Vec3();
     private _onEvent: Function;
     private _target: any;
@@ -83,6 +87,11 @@ export class Player extends Component {
     dp: number = 0;
     exp: number = 0;
 
+    bulletCount: number = 5;
+
+    activeSkills: Skill[] = [];
+    normalSkills: Skill[] = [];// TODO  最高8个技能
+
     static readonly Event = {
         HURT: 0,
         DEAD: 1,
@@ -101,6 +110,11 @@ export class Player extends Component {
         this.hp = this.maxHp = 100;
         this.maxExp = this._getNextLevelExp(this.level);
         this.exp = 0;
+
+        this.ndReloadProgress.active = false;
+
+        this.activeSkills.length = 0;
+        this.normalSkills.length = 0;
     }
     protected onDisable(): void {
         let collider = this.node.getComponent(Collider2D);
@@ -112,6 +126,10 @@ export class Player extends Component {
     }
 
     hurt(damage: number) {
+
+        if (this._isUnattackable) {
+            return;
+        }
         this.hp -= damage;
         Util.showText(`${damage}`, Color.RED.toHEX(), this.node.worldPosition, BattleContext.ndTextParent);
         if (this.hp <= 0) {
@@ -126,6 +144,21 @@ export class Player extends Component {
 
     private _getNextLevelExp(level: number) {
         return (level + 1) * 50;
+    }
+
+    learnSkill(sk: Skill) {
+        const skill = this.activeSkills.find(target => target.id === sk.id);
+        if (skill) {
+            skill.levelUp();
+        } else {
+            this.activeSkills.push(sk);
+        }
+
+        this.updateSkill();
+    }
+
+    updateSkill() {
+        //TODO
     }
 
     addExp(exp: number) {
@@ -146,8 +179,18 @@ export class Player extends Component {
     }
 
     onBeginContact(self: Collider2D, other: Collider2D) {
-        if (other.group === Constant.ColliderGroup.MONSTER) {
-            this.hurt(randomRangeInt(5, 10));
+        switch (other.group) {
+            case Constant.ColliderGroup.MONSTER:
+                this.hurt(randomRangeInt(5, 10));
+                break;
+
+            case Constant.ColliderGroup.MONSTER_WEAPON:
+                if (other.tag === Constant.WeaponTag.EBULLET) {
+                    const bullet = other.node.getComponent(EBullet);
+                    this.hurt(bullet.attack);
+                }
+            default:
+                break;
         }
     }
 
@@ -206,6 +249,51 @@ export class Player extends Component {
         tween(this.node)
             .tag(1)
             .repeatForever(tw)
+            .start();
+    }
+
+    shootBullet() {
+        if (this.bulletCount <= 0) {
+
+            return;
+        }
+
+        this.bulletCount--;
+
+        const ndBullet = Globats.getNode(Constant.PrefabUrl.BULLET, BattleContext.ndWeapon);
+        ndBullet.worldPosition = this.getShootPosition();
+
+        const wp = ndBullet.getComponent(Bullet);
+        wp.isMoving = true;
+        wp.moveDirection = toRadian(this.ndweapon0.angle);
+        wp.speed = 40;
+
+        BattleContext.ndCamera.getComponent(PlayerCamera).shake();
+
+        if (this.bulletCount <= 0) {
+            this.reloadBullet();
+
+        }
+    }
+
+    reloadBullet() {
+        this.ndweapon0.active = false;
+        const bar = this.ndReloadProgress.getComponent(ProgressBar);
+        bar.setProgress(0);
+        this.ndReloadProgress.active = true;
+
+        const temp = new Vec3;
+        tween(temp)
+            .to(3, { x: 1 }, {
+                onUpdate: (target: Vec3, ratio: number) => {
+                    bar.setProgress(ratio);
+                }
+            })
+            .call(() => {
+                this.ndReloadProgress.active = false;
+                this.ndweapon0.active = true;
+                this.bulletCount = 5;
+            })
             .start();
     }
 
@@ -303,7 +391,7 @@ export class Player extends Component {
 
     }
 
-    castFireball(radian: number) {
+    castFireball(radian?: number) {
         const ndFireball = Globats.getNode(Constant.PrefabUrl.FIREBALL, BattleContext.ndWeapon);
 
         ndFireball.worldPosition = this.node.worldPosition;
@@ -322,11 +410,31 @@ export class Player extends Component {
         const distance = 500;
 
         const endPos = Util.getPosition(this.node.position, this.moveDirection, distance);
+        this.ndweapon0.active = false;
+        this.playRoll();
         tween(this.node)
             .to(0.4, { position: endPos }, { easing: 'expoOut' })
+            .call(() => {
+                this.ndweapon0.active = true;
+                this.playIdle();
+            })
             .start();
 
-        this.playRoll();
+
+    }
+
+    castUnattackable() {
+        const op = this.node.getComponent(UIOpacity);
+        op.opacity = 180;
+        this._isUnattackable = true;
+
+        const restoreOpacity = () => {
+            op.opacity = 255;
+            this._isUnattackable = false;
+        };
+
+        this.unschedule(restoreOpacity);
+        this.scheduleOnce(restoreOpacity, 2);
     }
 }
 
