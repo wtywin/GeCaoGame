@@ -19,13 +19,7 @@ export class SkillSelectingView extends Component {
     }
 
     start() {
-        // let skills: Skill[] = [];
-        // skills.push(new SkillFireball());
-        // skills.push(new SkillFireball());
-        // skills.push(new SkillFireball());
 
-
-        // this._createSkillCards(skills);
 
     }
 
